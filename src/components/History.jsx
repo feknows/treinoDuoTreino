@@ -144,7 +144,7 @@ export default function History() {
                             <span className="hist-ex-data">
                               {ex.warmup_data?.sets || '?'}x{ex.warmup_data?.reps || '?'}
                             </span>
-                            {ex.completed && <span className="hist-check">✔</span>}
+                            {ex.completed ? <span className="hist-check">✔</span> : <span className="hist-alert">⚠️ Não finalizado</span>}
                           </div>
                         ))}
                       </div>
@@ -166,7 +166,7 @@ export default function History() {
                             <span className="hist-ex-data">
                               {renderTechniqueSummary(ex.technique_type, ex.technique_data)}
                             </span>
-                            {ex.completed ? <span className="hist-check">✔</span> : <span className="hist-pending">⏳</span>}
+                            {ex.completed ? <span className="hist-check">✔</span> : <><span className="hist-alert">⚠️ Não finalizado</span><span className="hist-pending">⏳</span></>}
                           </div>
                         ))}
                       </div>

@@ -1557,7 +1557,8 @@ tbody tr:hover {
 .hist-ex-tech { font-size: 0.75rem; color: var(--secondary); }
 .hist-ex-data { font-size: 0.82rem; color: var(--text-dim); text-align: right; }
 .hist-check { color: var(--primary); font-size: 0.9rem; }
-.hist-pending { color: var(--text-dim); font-size: 0.9rem; }
+.hist-pending { color: var(--danger); font-weight: 700; font-size: 0.9rem; }
+.hist-alert { color: var(--danger); font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
 
 /* ── Manage ── */
 .item-actions { display: flex; align-items: center; gap: 6px; }
