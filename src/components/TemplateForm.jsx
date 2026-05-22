@@ -11,8 +11,6 @@ function createExerciseRow(blockType) {
     exercise_id: '',
     equipment_id: '',
     technique_type: blockType === 'warmup' ? '' : '',
-    warmup_sets: blockType === 'warmup' ? 2 : null,
-    warmup_reps: blockType === 'warmup' ? 10 : null,
   }
 }
 
@@ -49,12 +47,12 @@ export default function TemplateForm({ onBack, editTemplate }) {
     if (!data) return
     const warm = data.filter(e => e.block_type === 'warmup').map(e => ({
       _key: newId(), exercise_id: e.exercise_id, equipment_id: e.equipment_id || '',
-      technique_type: e.technique_type || '', warmup_sets: e.warmup_sets, warmup_reps: e.warmup_reps,
+      technique_type: e.technique_type || '',
       _savedId: e.id,
     }))
     const main = data.filter(e => e.block_type === 'main').map(e => ({
       _key: newId(), exercise_id: e.exercise_id, equipment_id: e.equipment_id || '',
-      technique_type: e.technique_type || '', warmup_sets: null, warmup_reps: null,
+      technique_type: e.technique_type || '',
       _savedId: e.id,
     }))
     setWarmupExercises(warm.length ? warm : [createExerciseRow('warmup')])
@@ -113,8 +111,6 @@ export default function TemplateForm({ onBack, editTemplate }) {
         technique_type: r.block_type === 'warmup' ? null : (r.technique_type || null),
         technique_config: {},
         block_type: r.block_type,
-        warmup_sets: r.block_type === 'warmup' ? (r.warmup_sets || 2) : null,
-        warmup_reps: r.block_type === 'warmup' ? (r.warmup_reps || 10) : null,
         order_index: r.order_index,
         user_id: user.id,
       }))
@@ -154,7 +150,7 @@ export default function TemplateForm({ onBack, editTemplate }) {
                 <button className="btn-remove-row" onClick={() => removeWarmup(row._key)}>✕</button>
               )}
             </div>
-            <div className="tmpl-row-fields">
+            <div className="tmpl-row-fields tmpl-main-fields">
               <select value={row.exercise_id} onChange={e => updateWarmup(row._key, 'exercise_id', e.target.value)}>
                 <option value="">Exercício</option>
                 {exercises.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
@@ -163,10 +159,6 @@ export default function TemplateForm({ onBack, editTemplate }) {
                 <option value="">Equipamento</option>
                 {equipment.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
               </select>
-              <input type="number" min={1} placeholder="séries" value={row.warmup_sets ?? ''}
-                onChange={e => updateWarmup(row._key, 'warmup_sets', e.target.value === '' ? '' : parseInt(e.target.value))} />
-              <input type="number" min={1} placeholder="reps" value={row.warmup_reps ?? ''}
-                onChange={e => updateWarmup(row._key, 'warmup_reps', e.target.value === '' ? '' : parseInt(e.target.value))} />
             </div>
           </div>
         ))}

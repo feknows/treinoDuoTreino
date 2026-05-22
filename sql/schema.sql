@@ -200,7 +200,7 @@ BEGIN
   SELECT
     v_session_id, te.id, te.exercise_id, te.equipment_id,
     te.technique_type, te.technique_config, te.block_type,
-    jsonb_build_object('sets', te.warmup_sets, 'reps', te.warmup_reps),
+    '{}'::jsonb,
     te.order_index, FALSE, v_user_id
   FROM template_exercises te
   WHERE te.template_id = p_template_id

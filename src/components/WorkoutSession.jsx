@@ -131,16 +131,16 @@ export default function WorkoutSession() {
     setActiveIdx(nextIdx >= 0 ? nextIdx : null)
   }
 
-  async function completeWarmup(idx) {
+  async function completeWarmup(idx, warmupData) {
     const exercise = exercises[idx]
     const { error } = await supabase
       .from('session_exercises')
-      .update({ completed: true })
+      .update({ warmup_data: warmupData, completed: true })
       .eq('id', exercise.id)
 
     if (!error) {
       const next = [...exercises]
-      next[idx] = { ...next[idx], completed: true }
+      next[idx] = { ...next[idx], warmup_data: warmupData, completed: true }
       setExercises(next)
       const nextIdx = next.findIndex((e, i) => !e.completed && i > idx)
       setActiveIdx(nextIdx >= 0 ? nextIdx : null)
@@ -301,11 +301,16 @@ function StartSessionPanel({ onStartFromTemplate, onStartEmpty, onLoadTemplates,
 
 function ExerciseForm({ exercise, index, total, onComplete, onCompleteWarmup, onBack }) {
   const [data, setData] = useState(exercise.technique_data || {})
+  const [warmupSets, setWarmupSets] = useState(exercise.warmup_data?.sets ?? '')
+  const [warmupReps, setWarmupReps] = useState(exercise.warmup_data?.reps ?? '')
   const isWarmup = exercise.block_type === 'warmup' && !exercise.technique_type
 
   function handleComplete() {
     if (isWarmup) {
-      onCompleteWarmup(index)
+      const wd = {}
+      if (warmupSets !== '') wd.sets = parseInt(warmupSets)
+      if (warmupReps !== '') wd.reps = parseInt(warmupReps)
+      onCompleteWarmup(index, wd)
     } else {
       onComplete(index, data)
     }
@@ -331,13 +336,22 @@ function ExerciseForm({ exercise, index, total, onComplete, onCompleteWarmup, on
 
       {isWarmup ? (
         <div className="tech-form">
-          <p className="tech-description">
-            {exercise.warmup_data?.sets || '?'} séries de {exercise.warmup_data?.reps || '?'} repetições.
-          </p>
-          <label className="tech-checkbox">
-            <input type="checkbox" checked={exercise.completed} onChange={handleComplete} />
-            Aquecimento Concluído
-          </label>
+          <p className="tech-description">Registre o aquecimento realizado:</p>
+          <div className="warmup-fields">
+            <label className="warmup-field">
+              <span>Séries</span>
+              <input type="number" min={0} placeholder="ex: 3" value={warmupSets}
+                onChange={e => setWarmupSets(e.target.value === '' ? '' : parseInt(e.target.value))} />
+            </label>
+            <label className="warmup-field">
+              <span>Repetições</span>
+              <input type="number" min={0} placeholder="ex: 10" value={warmupReps}
+                onChange={e => setWarmupReps(e.target.value === '' ? '' : parseInt(e.target.value))} />
+            </label>
+          </div>
+          <button className="btn-save" style={{ marginTop: 12 }} onClick={handleComplete}>
+            {exercise.completed ? 'Atualizar' : 'Concluir'}
+          </button>
         </div>
       ) : exercise.technique_type ? (
         renderTechniqueForm(exercise.technique_type, data, setData)
@@ -376,7 +390,7 @@ function ExerciseListView({ exercises, activeIdx, onCompleteWarmup, onUpdateExer
                 <span className="ex-list-item-tech">{getTechniqueLabel(ex.technique_type)}</span>
               )}
               {ex.block_type === 'warmup' && !ex.technique_type && (
-                <span className="ex-list-item-tech">{ex.warmup_data?.sets || '?'}x{ex.warmup_data?.reps || '?'}</span>
+                <span className="ex-list-item-tech">{ex.warmup_data?.sets && ex.warmup_data?.reps ? `${ex.warmup_data.sets}x${ex.warmup_data.reps}` : 'Pendente'}</span>
               )}
             </div>
             <div className="ex-list-item-data">
