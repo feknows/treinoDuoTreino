@@ -97,6 +97,7 @@ function renderMuscleRound(data, onChange) {
   const d = data || {}
   const blocks = d.blocks || [{ load: '' }]
   const defaultLoad = d.defaultLoad || ''
+  const defaultDropLoad = d.defaultDropLoad || ''
 
   function updateBlock(i, load) {
     const next = blocks.map((b, j) => j === i ? { ...b, load } : b)
@@ -109,8 +110,16 @@ function renderMuscleRound(data, onChange) {
     onChange({ ...d, defaultLoad: val, blocks: next })
   }
 
+  function setDefaultDropLoad(val) {
+    const load = val === '' ? '' : parseFloat(val)
+    const next = blocks.map(b => b.drop ? { ...b, load } : b)
+    onChange({ ...d, defaultDropLoad: val, blocks: next })
+  }
+
   function addBlock(drop) {
-    const load = !drop && defaultLoad !== '' ? (typeof defaultLoad === 'string' ? parseFloat(defaultLoad) : defaultLoad) : ''
+    const load = drop
+      ? (defaultDropLoad !== '' ? (typeof defaultDropLoad === 'string' ? parseFloat(defaultDropLoad) : defaultDropLoad) : '')
+      : (defaultLoad !== '' ? (typeof defaultLoad === 'string' ? parseFloat(defaultLoad) : defaultLoad) : '')
     onChange({ ...d, blocks: [...blocks, { load, drop }] })
   }
 
@@ -124,6 +133,7 @@ function renderMuscleRound(data, onChange) {
     <div className="tech-form">
       <p className="tech-description">Blocos de 4 repetições. Adicione quantos blocos fizer.</p>
       <div className="tech-default-load">
+        <p className="tech-default-load-hint">Preenche automaticamente todos os blocos normais</p>
         <label className="tech-field">
           <span>Carga padrão (kg)</span>
           <div className="tech-input-wrap">
@@ -131,6 +141,20 @@ function renderMuscleRound(data, onChange) {
               type="number" step={0.5} min={0} placeholder="kg"
               value={defaultLoad}
               onChange={e => setDefaultLoad(e.target.value === '' ? '' : parseFloat(e.target.value))}
+            />
+            <span className="tech-suffix">kg</span>
+          </div>
+        </label>
+      </div>
+      <div className="tech-default-load tech-drop-load">
+        <p className="tech-default-load-hint">Preenche todos os blocos DROP</p>
+        <label className="tech-field">
+          <span>Carga DROP (kg)</span>
+          <div className="tech-input-wrap">
+            <input
+              type="number" step={0.5} min={0} placeholder="kg"
+              value={defaultDropLoad}
+              onChange={e => setDefaultDropLoad(e.target.value === '' ? '' : parseFloat(e.target.value))}
             />
             <span className="tech-suffix">kg</span>
           </div>

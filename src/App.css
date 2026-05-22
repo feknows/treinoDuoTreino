@@ -1228,6 +1228,16 @@ tbody tr:hover {
 }
 
 .tech-input-wrap input:focus { border-color: var(--primary); }
+
+/* Hide native number spinners */
+.tech-input-wrap input[type="number"]::-webkit-inner-spin-button,
+.tech-input-wrap input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.tech-input-wrap input[type="number"] {
+  -moz-appearance: textfield;
+}
 .tech-suffix { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; }
 
 .tech-checkbox {
@@ -1286,6 +1296,10 @@ tbody tr:hover {
 .tech-round-block .tech-input-wrap { flex: 1; max-width: 120px; }
 
 .tech-default-load {
+  background: var(--surface);
+  border: 1px solid var(--surface2);
+  border-radius: 8px;
+  padding: 12px;
   margin-bottom: 8px;
 }
 
@@ -1293,11 +1307,32 @@ tbody tr:hover {
   flex-direction: row;
   align-items: center;
   gap: 8px;
+  margin: 0;
 }
 
 .tech-default-load .tech-field span {
   white-space: nowrap;
   font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.tech-default-load .tech-input-wrap {
+  flex: 1;
+  max-width: 140px;
+}
+
+.tech-default-load-hint {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin: 0 0 6px 0;
+  font-style: italic;
+}
+
+.tech-drop-load {
+  border: 1px dashed rgba(255,82,82,0.3);
+}
+.tech-drop-load .tech-field span {
+  color: var(--danger);
 }
 
 .btn-round-remove {
