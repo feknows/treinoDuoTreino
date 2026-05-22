@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { supabase } from './services/supabaseClient'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
+import AuthPage from './components/AuthPage'
 import RegisterWorkout from './components/RegisterWorkout'
 import History from './components/History'
 import Progress from './components/Progress'
@@ -13,16 +16,47 @@ const tabs = [
   { id: 'howtouse', label: 'Ajuda', icon: '❓' },
 ]
 
-export default function App() {
+function AppContent() {
+  const { user, loading } = useAuth()
   const [activeTab, setActiveTab] = useState('register')
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  if (loading) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card" style={{ textAlign: 'center', padding: '40px' }}>
+          <p className="loading">Carregando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <AuthPage />
+  }
 
   return (
     <div className="app">
       <header className="header">
-        <h1>
-          <span className="header-icon">💪</span>
-          TreinoDuoTreino
-        </h1>
+        <div className="header-top">
+          <h1>
+            <span className="header-icon">💪</span>
+            TreinoDuoTreino
+          </h1>
+          <div className="user-menu">
+            <button className="user-btn" onClick={() => setMenuOpen(!menuOpen)}>
+              {user.email?.[0]?.toUpperCase() || 'U'}
+            </button>
+            {menuOpen && (
+              <div className="user-dropdown">
+                <span className="user-email">{user.email}</span>
+                <button onClick={() => { supabase.auth.signOut(); setMenuOpen(false) }}>
+                  Sair
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
         <p className="subtitle">Controle sua evolução na academia</p>
       </header>
 
@@ -47,5 +81,13 @@ export default function App() {
         {activeTab === 'howtouse' && <HowToUse />}
       </main>
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }

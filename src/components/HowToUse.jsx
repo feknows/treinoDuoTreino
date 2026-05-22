@@ -5,6 +5,14 @@ export default function HowToUse() {
 
       <div className="how-section">
         <div className="how-step">
+          <div className="how-icon">0️⃣</div>
+          <div className="how-body">
+            <h3>Faça Login</h3>
+            <p>Use seu email e senha para entrar. Seus dados são pessoais e protegidos. Precisa recuperar a senha? Use <strong>Esqueceu a senha?</strong> na tela de login.</p>
+          </div>
+        </div>
+
+        <div className="how-step">
           <div className="how-icon">1️⃣</div>
           <div className="how-body">
             <h3>Cadastre Exercícios e Equipamentos</h3>

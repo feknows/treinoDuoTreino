@@ -60,6 +60,28 @@ function ItemManager({ title, table, items, setItems, color }) {
 export default function Manage() {
   const [exercises, setExercises] = useState([])
   const [equipment, setEquipment] = useState([])
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviting, setInviting] = useState(false)
+  const [inviteMsg, setInviteMsg] = useState(null)
+
+  async function handleInvite(e) {
+    e.preventDefault()
+    const email = inviteEmail.trim()
+    if (!email) {
+      setInviteMsg({ type: 'error', text: 'Digite o email da pessoa.' })
+      return
+    }
+    setInviting(true)
+    setInviteMsg(null)
+    const { error } = await supabase.auth.signUp({ email })
+    setInviting(false)
+    if (error) {
+      setInviteMsg({ type: 'error', text: error.message })
+    } else {
+      setInviteMsg({ type: 'success', text: `Convite enviado para ${email}!` })
+      setInviteEmail('')
+    }
+  }
 
   return (
     <div className="card">
@@ -83,6 +105,23 @@ export default function Manage() {
         setItems={setEquipment}
         color="#7c4dff"
       />
+
+      <div className="manage-section invite-section" style={{ borderLeftColor: '#ff6d00' }}>
+        <h3>👤 Convidar Usuário</h3>
+        <p className="manage-info">Convide uma pessoa para usar o app. Ela receberá um email para criar a senha.</p>
+        <form onSubmit={handleInvite} className="add-row">
+          <input
+            type="email"
+            placeholder="Email da pessoa..."
+            value={inviteEmail}
+            onChange={e => setInviteEmail(e.target.value)}
+          />
+          <button type="submit" disabled={inviting}>
+            {inviting ? 'Enviando...' : 'Convidar'}
+          </button>
+        </form>
+        {inviteMsg && <div className={`message ${inviteMsg.type}`}>{inviteMsg.text}</div>}
+      </div>
     </div>
   )
 }
