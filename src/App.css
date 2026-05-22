@@ -1285,6 +1285,47 @@ tbody tr:hover {
 
 .tech-round-block .tech-input-wrap { flex: 1; max-width: 120px; }
 
+.btn-round-remove {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--danger);
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.btn-round-remove:hover {
+  background: rgba(255, 82, 82, 0.15);
+}
+
+.tech-round-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tech-round-actions .btn-small-outline {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-add-drop {
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+}
+
+.btn-add-drop:hover {
+  background: rgba(255, 82, 82, 0.1) !important;
+}
+
 /* ── Session Complete ── */
 .session-complete-header {
   display: flex;

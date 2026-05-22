@@ -2,7 +2,7 @@ export const TECHNIQUE_TYPES = [
   { name: 'pump_set', label: 'Pump Set', description: 'Apenas 1 série de 15-25 repetições, com intenção de jogar sangue no músculo.' },
   { name: 'loading_set', label: 'Loading Set', description: 'Duas repetições com cargas diferentes para carregamento.' },
   { name: 'valid_set', label: 'Série Válida', description: '1 única série, ideal 6 repetições.' },
-  { name: 'muscle_round', label: 'Muscle Round', description: '6 blocos com 4 repetições cada. Os 2 últimos podem ser Drop Sets.' },
+  { name: 'muscle_round', label: 'Muscle Round', description: 'Blocos de 4 repetições. Adicione quantos blocos fizer, com opção de Drop Sets.' },
 ]
 
 export function getTechnique(name) {
@@ -95,21 +95,31 @@ function renderValidSet(data, onChange) {
 
 function renderMuscleRound(data, onChange) {
   const d = data || {}
-  const blocks = d.blocks || Array.from({ length: 6 }, () => ({ load: '' }))
+  const blocks = d.blocks || [{ load: '' }]
 
   function updateBlock(i, load) {
     const next = blocks.map((b, j) => j === i ? { ...b, load } : b)
     onChange({ ...d, blocks: next })
   }
 
+  function addBlock(drop) {
+    onChange({ ...d, blocks: [...blocks, { load: '', drop }] })
+  }
+
+  function removeBlock(i) {
+    if (blocks.length <= 1) return
+    const next = blocks.filter((_, j) => j !== i)
+    onChange({ ...d, blocks: next })
+  }
+
   return (
     <div className="tech-form">
-      <p className="tech-description">6 blocos de 4 repetições. Os últimos 2 podem ser Drop Sets (carga menor).</p>
+      <p className="tech-description">Blocos de 4 repetições. Adicione quantos blocos fizer.</p>
       {blocks.map((block, i) => (
-        <div key={i} className={`tech-round-block ${i >= 4 ? 'tech-drop' : ''}`}>
+        <div key={i} className={`tech-round-block ${block.drop ? 'tech-drop' : ''}`}>
           <span className="tech-round-label">
             Bloco {i + 1}
-            {i >= 4 && <span className="tech-drop-badge">DROP</span>}
+            {block.drop && <span className="tech-drop-badge">DROP</span>}
             <span className="tech-round-reps">4 reps</span>
           </span>
           <div className="tech-input-wrap">
@@ -123,8 +133,15 @@ function renderMuscleRound(data, onChange) {
             />
             <span className="tech-suffix">kg</span>
           </div>
+          {blocks.length > 1 && (
+            <button className="btn-round-remove" onClick={() => removeBlock(i)}>✕</button>
+          )}
         </div>
       ))}
+      <div className="tech-round-actions">
+        <button className="btn-small-outline" onClick={() => addBlock(false)}>+ Adicionar Bloco</button>
+        <button className="btn-small-outline btn-add-drop" onClick={() => addBlock(true)}>+ Adicionar Drop</button>
+      </div>
     </div>
   )
 }
