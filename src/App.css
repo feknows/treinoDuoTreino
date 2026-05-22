@@ -393,6 +393,202 @@ tbody tr:hover {
   line-height: 1.4;
 }
 
+.field-label {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.field-label input {
+  width: 100%;
+  margin-top: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--surface2);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.field-label input:focus {
+  border-color: var(--primary);
+}
+
+.session-exercises {
+  margin: 16px 0;
+}
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.session-header h3 {
+  margin: 0;
+}
+
+.btn-add {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  background: var(--surface2);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.exercise-row {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.exercise-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.exercise-index {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(0, 230, 118, 0.1);
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+.btn-remove-row {
+  background: transparent;
+  color: var(--danger);
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+}
+
+.btn-remove-row:hover {
+  background: rgba(255, 82, 82, 0.15);
+}
+
+.exercise-row-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.exercise-row-fields select,
+.exercise-row-fields input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--surface2);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.exercise-row-fields select:focus,
+.exercise-row-fields input:focus {
+  border-color: var(--primary);
+}
+
+.btn-save {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.05rem;
+  margin-top: 8px;
+}
+
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.session-card {
+  background: var(--bg);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.session-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.session-card-header:hover {
+  background: var(--surface2);
+}
+
+.session-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.session-date {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.session-notes {
+  font-size: 0.85rem;
+  color: var(--secondary);
+  font-weight: 500;
+}
+
+.session-count {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.session-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expand-icon {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.session-card-body {
+  padding: 0 14px 14px;
+}
+
+.session-card-body table {
+  font-size: 0.85rem;
+}
+
+.session-card-body th {
+  padding: 8px 6px;
+  font-size: 0.75rem;
+}
+
+.session-card-body td {
+  padding: 8px 6px;
+  font-size: 0.85rem;
+}
+
+@media (min-width: 600px) {
+  .exercise-row-fields {
+    grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr;
+  }
+}
+
 @media (max-width: 480px) {
   .app {
     padding: 12px;
@@ -423,5 +619,17 @@ tbody tr:hover {
 
   .filters label {
     min-width: auto;
+  }
+
+  .exercise-row-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .session-card-header {
+    padding: 12px;
+  }
+
+  .session-card-body {
+    padding: 0 12px 12px;
   }
 }
