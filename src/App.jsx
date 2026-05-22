@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { supabase } from './services/supabaseClient'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthPage from './components/AuthPage'
-import Profile from './components/Profile'
+import Profile, { getInitial } from './components/Profile'
 import RegisterWorkout from './components/RegisterWorkout'
 import History from './components/History'
 import Progress from './components/Progress'
@@ -54,7 +54,7 @@ function AppContent() {
           </h1>
           <div className="user-menu">
             <button className="user-btn" onClick={() => setShowProfile(true)}>
-              {user.email?.[0]?.toUpperCase() || 'U'}
+              {getInitial(user)}
             </button>
           </div>
         </div>

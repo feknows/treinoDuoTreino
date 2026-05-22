@@ -31,11 +31,49 @@ export default function Profile({ user, onBack }) {
 }
 
 function ProfileInfo({ user }) {
+  const name = user.user_metadata?.display_name || ''
+  const [displayName, setDisplayName] = useState(name)
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState(null)
+
+  async function handleSave() {
+    const trimmed = displayName.trim()
+    if (trimmed === name) return
+
+    setSaving(true)
+    setMessage(null)
+    const { error } = await supabase.auth.updateUser({ data: { display_name: trimmed || null } })
+    setSaving(false)
+
+    if (error) {
+      setMessage({ type: 'error', text: error.message })
+    } else {
+      setMessage({ type: 'success', text: 'Nome atualizado!' })
+    }
+  }
+
   return (
     <div className="profile-section">
       <div className="profile-avatar-large">
-        {user.email?.[0]?.toUpperCase() || '?'}
+        {getInitial(user)}
       </div>
+
+      <label>
+        Nome
+        <div className="name-edit-row">
+          <input
+            type="text"
+            placeholder="Seu nome"
+            value={displayName}
+            onChange={e => setDisplayName(e.target.value)}
+          />
+          <button disabled={saving || displayName.trim() === name} onClick={handleSave}>
+            {saving ? '...' : 'Salvar'}
+          </button>
+        </div>
+      </label>
+      {message && <div className={`message ${message.type}`}>{message.text}</div>}
+
       <div className="profile-field">
         <span className="profile-field-label">Email</span>
         <span className="profile-field-value">{user.email}</span>
@@ -56,6 +94,12 @@ function ProfileInfo({ user }) {
       </div>
     </div>
   )
+}
+
+function getInitial(user) {
+  const name = user.user_metadata?.display_name
+  if (name) return name[0].toUpperCase()
+  return user.email?.[0]?.toUpperCase() || '?'
 }
 
 function ChangePassword() {
@@ -193,3 +237,5 @@ function ChangeEmail({ user }) {
     </form>
   )
 }
+
+export { getInitial }
