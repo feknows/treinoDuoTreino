@@ -48,6 +48,7 @@ function WorkoutSessionInner() {
 
   useEffect(() => {
     loadToday()
+    loadTemplates()
   }, [])
 
   async function loadToday() {
@@ -325,7 +326,6 @@ function StartSessionPanel({ onStartFromTemplate, onStartEmpty, onLoadTemplates,
   async function handleStart() {
     if (!selected) return
     setLoading(true)
-    await onLoadTemplates()
     onStartFromTemplate(selected)
   }
 
