@@ -1193,6 +1193,14 @@ tbody tr:hover {
 }
 
 .tech-form { margin: 8px 0; }
+
+.tech-valid-badge {
+  color: var(--danger);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
 .tech-description {
   font-size: 0.85rem;
   color: var(--text-dim);
@@ -1250,8 +1258,6 @@ tbody tr:hover {
 }
 
 .tech-checkbox input { width: 18px; height: 18px; accent-color: var(--primary); }
-
-.tech-loading-set { display: flex; flex-direction: column; gap: 12px; }
 .tech-loading-pair { display: flex; gap: 12px; }
 
 .tech-round-block {

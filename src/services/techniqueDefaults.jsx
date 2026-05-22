@@ -56,14 +56,6 @@ function renderPumpSet(data, onChange) {
         <NumberField label="Carga (kg)" value={d.load} onChange={v => onChange({ ...d, load: v })} step={0.5} />
         <NumberField label="Repetições" value={d.reps} onChange={v => onChange({ ...d, reps: v })} min={1} />
       </div>
-      <label className="tech-checkbox">
-        <input
-          type="checkbox"
-          checked={d.completed ?? false}
-          onChange={e => onChange({ ...d, completed: e.target.checked })}
-        />
-        Concluído
-      </label>
     </div>
   )
 }
@@ -71,15 +63,11 @@ function renderPumpSet(data, onChange) {
 function renderLoadingSet(data, onChange) {
   const d = data || {}
   return (
-    <div className="tech-form tech-loading-set">
-      <p className="tech-description">Duas repetições com cargas diferentes.</p>
+    <div className="tech-form">
+      <p className="tech-valid-badge">SÉRIE VÁLIDA</p>
       <div className="tech-loading-pair">
-        <NumberField label="Carga 1 (kg)" value={d.load_1} onChange={v => onChange({ ...d, load_1: v })} step={0.5} />
-        <NumberField label="Reps 1" value={d.reps_1} onChange={v => onChange({ ...d, reps_1: v })} min={1} />
-      </div>
-      <div className="tech-loading-pair">
-        <NumberField label="Carga 2 (kg)" value={d.load_2} onChange={v => onChange({ ...d, load_2: v })} step={0.5} />
-        <NumberField label="Reps 2" value={d.reps_2} onChange={v => onChange({ ...d, reps_2: v })} min={1} />
+        <NumberField label="Carga (kg)" value={d.load} onChange={v => onChange({ ...d, load: v })} step={0.5} />
+        <NumberField label="Repetições" value={d.reps} onChange={v => onChange({ ...d, reps: v })} min={1} />
       </div>
     </div>
   )
@@ -202,9 +190,9 @@ export function renderTechniqueSummary(name, data) {
   if (!data) return '-'
   switch (name) {
     case 'pump_set':
-      return `${data.load ?? '?'}kg x ${data.reps ?? '?'} reps${data.completed ? ' ✔' : ''}`
+      return `${data.load ?? '?'}kg x ${data.reps ?? '?'} reps`
     case 'loading_set':
-      return `${data.load_1 ?? '?'}kg x ${data.reps_1 ?? '?'} → ${data.load_2 ?? '?'}kg x ${data.reps_2 ?? '?'}`
+      return `${data.load ?? '?'}kg x ${data.reps ?? '?'} reps`
     case 'valid_set':
       return `${data.load ?? '?'}kg x ${data.reps ?? '?'} reps`
     case 'muscle_round':
