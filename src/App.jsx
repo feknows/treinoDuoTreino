@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthPage from './components/AuthPage'
 import Profile, { getInitial } from './components/Profile'
 import Dashboard from './components/Dashboard'
-import RegisterWorkout from './components/RegisterWorkout'
+import WorkoutSession from './components/WorkoutSession'
 import History from './components/History'
 import Progress from './components/Progress'
 import Manage from './components/Manage'
@@ -12,7 +12,7 @@ import HowToUse from './components/HowToUse'
 
 const tabs = [
   { id: 'dashboard', label: 'Início', icon: '🏠' },
-  { id: 'register', label: 'Registrar', icon: '➕' },
+  { id: 'workout', label: 'Treinar', icon: '🏋️' },
   { id: 'history', label: 'Histórico', icon: '📋' },
   { id: 'progress', label: 'Progresso', icon: '📈' },
   { id: 'manage', label: 'Gerenciar', icon: '⚙️' },
@@ -78,7 +78,7 @@ function AppContent() {
 
       <main className="content">
         {activeTab === 'dashboard' && <Dashboard />}
-        {activeTab === 'register' && <RegisterWorkout />}
+        {activeTab === 'workout' && <WorkoutSession />}
         {activeTab === 'history' && <History />}
         {activeTab === 'progress' && <Progress />}
         {activeTab === 'manage' && <Manage />}

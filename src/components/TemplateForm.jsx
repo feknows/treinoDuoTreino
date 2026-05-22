@@ -1,0 +1,209 @@
+import { useState, useEffect } from 'react'
+import { supabase } from '../services/supabaseClient'
+import { TECHNIQUE_TYPES, getTechniqueLabel } from '../services/techniqueDefaults'
+
+let idCounter = 0
+function newId() { return ++idCounter }
+
+function createExerciseRow(blockType) {
+  return {
+    _key: newId(),
+    exercise_id: '',
+    equipment_id: '',
+    technique_type: blockType === 'warmup' ? '' : '',
+    warmup_sets: blockType === 'warmup' ? 2 : null,
+    warmup_reps: blockType === 'warmup' ? 10 : null,
+  }
+}
+
+export default function TemplateForm({ onBack, editTemplate }) {
+  const [name, setName] = useState(editTemplate?.name || '')
+  const [warmupExercises, setWarmupExercises] = useState([])
+  const [mainExercises, setMainExercises] = useState([])
+  const [exercises, setExercises] = useState([])
+  const [equipment, setEquipment] = useState([])
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState(null)
+
+  useEffect(() => {
+    fetchCatalog()
+    if (editTemplate) loadTemplate()
+  }, [])
+
+  async function fetchCatalog() {
+    const [exRes, eqRes] = await Promise.all([
+      supabase.from('exercises').select('*').order('name'),
+      supabase.from('equipment').select('*').order('name'),
+    ])
+    if (exRes.data) setExercises(exRes.data)
+    if (eqRes.data) setEquipment(eqRes.data)
+  }
+
+  async function loadTemplate() {
+    const { data } = await supabase
+      .from('template_exercises')
+      .select('*')
+      .eq('template_id', editTemplate.id)
+      .order('order_index')
+
+    if (!data) return
+    const warm = data.filter(e => e.block_type === 'warmup').map(e => ({
+      _key: newId(), exercise_id: e.exercise_id, equipment_id: e.equipment_id || '',
+      technique_type: e.technique_type || '', warmup_sets: e.warmup_sets, warmup_reps: e.warmup_reps,
+      _savedId: e.id,
+    }))
+    const main = data.filter(e => e.block_type === 'main').map(e => ({
+      _key: newId(), exercise_id: e.exercise_id, equipment_id: e.equipment_id || '',
+      technique_type: e.technique_type || '', warmup_sets: null, warmup_reps: null,
+      _savedId: e.id,
+    }))
+    setWarmupExercises(warm.length ? warm : [createExerciseRow('warmup')])
+    setMainExercises(main.length ? main : [createExerciseRow('main')])
+  }
+
+  function addWarmup() { setWarmupExercises(p => [...p, createExerciseRow('warmup')]) }
+  function addMain() { setMainExercises(p => [...p, createExerciseRow('main')]) }
+
+  function removeWarmup(key) { setWarmupExercises(p => p.filter(r => r._key !== key)) }
+  function removeMain(key) { setMainExercises(p => p.filter(r => r._key !== key)) }
+
+  function updateWarmup(key, field, value) {
+    setWarmupExercises(p => p.map(r => r._key === key ? { ...r, [field]: value } : r))
+  }
+  function updateMain(key, field, value) {
+    setMainExercises(p => p.map(r => r._key === key ? { ...r, [field]: value } : r))
+  }
+
+  function isValid() {
+    if (!name.trim()) return false
+    const allMainOk = mainExercises.some(r => r.exercise_id)
+    if (!allMainOk) return false
+    return true
+  }
+
+  async function handleSave() {
+    if (!isValid()) {
+      setMessage({ type: 'error', text: 'Defina um nome e pelo menos 1 exercício principal.' })
+      return
+    }
+    setSaving(true)
+    setMessage(null)
+
+    const { data: template, error: tmplErr } = await supabase
+      .from('workout_templates')
+      .upsert({ id: editTemplate?.id || undefined, name: name.trim() })
+      .select()
+      .single()
+
+    if (tmplErr) { setSaving(false); setMessage({ type: 'error', text: tmplErr.message }); return }
+
+    const allExercises = [
+      ...warmupExercises.map((r, i) => ({ ...r, block_type: 'warmup', order_index: i })),
+      ...mainExercises.map((r, i) => ({ ...r, block_type: 'main', order_index: warmupExercises.length + i })),
+    ]
+
+    const toSave = allExercises
+      .filter(r => r.exercise_id)
+      .map(r => ({
+        template_id: template.id,
+        exercise_id: r.exercise_id,
+        equipment_id: r.equipment_id || null,
+        technique_type: r.block_type === 'warmup' ? null : (r.technique_type || null),
+        technique_config: {},
+        block_type: r.block_type,
+        warmup_sets: r.block_type === 'warmup' ? (r.warmup_sets || 2) : null,
+        warmup_reps: r.block_type === 'warmup' ? (r.warmup_reps || 10) : null,
+        order_index: r.order_index,
+      }))
+
+    if (editTemplate) {
+      await supabase.from('template_exercises').delete().eq('template_id', editTemplate.id)
+    }
+
+    const { error: insErr } = await supabase.from('template_exercises').insert(toSave)
+    setSaving(false)
+    if (insErr) { setMessage({ type: 'error', text: insErr.message }) }
+    else { onBack() }
+  }
+
+  return (
+    <div className="card">
+      <div className="profile-header">
+        <button className="btn-back" onClick={onBack}>← Voltar</button>
+        <h2>{editTemplate ? 'Editar' : 'Criar'} Modelo de Treino</h2>
+      </div>
+
+      <label className="field-label">
+        Nome do Modelo
+        <input type="text" placeholder="Ex: Treino A - Superior" value={name} onChange={e => setName(e.target.value)} />
+      </label>
+
+      <div className="tmpl-block">
+        <div className="tmpl-block-header">
+          <h3>🔥 Aquecimento</h3>
+          <button className="btn-small" onClick={addWarmup}>+</button>
+        </div>
+        {warmupExercises.map((row, i) => (
+          <div key={row._key} className="tmpl-row">
+            <div className="tmpl-row-header">
+              <span className="tmpl-idx">{i + 1}</span>
+              {warmupExercises.length > 1 && (
+                <button className="btn-remove-row" onClick={() => removeWarmup(row._key)}>✕</button>
+              )}
+            </div>
+            <div className="tmpl-row-fields">
+              <select value={row.exercise_id} onChange={e => updateWarmup(row._key, 'exercise_id', e.target.value)}>
+                <option value="">Exercício</option>
+                {exercises.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
+              </select>
+              <select value={row.equipment_id} onChange={e => updateWarmup(row._key, 'equipment_id', e.target.value)}>
+                <option value="">Equipamento</option>
+                {equipment.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
+              </select>
+              <input type="number" min={1} placeholder="séries" value={row.warmup_sets ?? ''}
+                onChange={e => updateWarmup(row._key, 'warmup_sets', e.target.value === '' ? '' : parseInt(e.target.value))} />
+              <input type="number" min={1} placeholder="reps" value={row.warmup_reps ?? ''}
+                onChange={e => updateWarmup(row._key, 'warmup_reps', e.target.value === '' ? '' : parseInt(e.target.value))} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="tmpl-block">
+        <div className="tmpl-block-header">
+          <h3>💪 Parte Principal</h3>
+          <button className="btn-small" onClick={addMain}>+</button>
+        </div>
+        {mainExercises.map((row, i) => (
+          <div key={row._key} className="tmpl-row">
+            <div className="tmpl-row-header">
+              <span className="tmpl-idx">{i + 1}</span>
+              {mainExercises.length > 1 && (
+                <button className="btn-remove-row" onClick={() => removeMain(row._key)}>✕</button>
+              )}
+            </div>
+            <div className="tmpl-row-fields tmpl-main-fields">
+              <select value={row.exercise_id} onChange={e => updateMain(row._key, 'exercise_id', e.target.value)}>
+                <option value="">Exercício</option>
+                {exercises.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
+              </select>
+              <select value={row.equipment_id} onChange={e => updateMain(row._key, 'equipment_id', e.target.value)}>
+                <option value="">Equipamento</option>
+                {equipment.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
+              </select>
+              <select value={row.technique_type} onChange={e => updateMain(row._key, 'technique_type', e.target.value)}>
+                <option value="">Técnica</option>
+                {TECHNIQUE_TYPES.map(t => <option key={t.name} value={t.name}>{t.label}</option>)}
+              </select>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button className="btn-save" disabled={saving || !isValid()} onClick={handleSave}>
+        {saving ? 'Salvando...' : 'Salvar Modelo'}
+      </button>
+      {message && <div className={`message ${message.type}`}>{message.text}</div>}
+    </div>
+  )
+}

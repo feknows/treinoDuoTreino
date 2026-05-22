@@ -16,20 +16,21 @@ export default function Dashboard() {
   async function fetchStats() {
     const { data: sessions } = await supabase
       .from('workout_sessions')
-      .select('*')
+      .select('*, session_exercises(count)')
       .order('date', { ascending: false })
       .limit(1)
 
     if (sessions && sessions.length > 0) {
-      const { data: logs } = await supabase
-        .from('workout_logs')
-        .select('*')
+      const { count } = await supabase
+        .from('session_exercises')
+        .select('*', { count: 'exact', head: true })
         .eq('session_id', sessions[0].id)
 
       setStats({
         lastDate: sessions[0].date,
-        lastExercises: logs?.length || 0,
+        lastExercises: count || 0,
         totalSessions: sessions.length,
+        lastCompleted: sessions[0].completed,
       })
     } else {
       setStats({ lastDate: null, lastExercises: 0, totalSessions: 0 })
@@ -47,9 +48,9 @@ export default function Dashboard() {
       </div>
 
       <div className="dash-actions">
-        <a className="dash-action-btn" href="#register">
-          <span className="dash-action-icon">➕</span>
-          <span>Registrar Treino</span>
+        <a className="dash-action-btn" href="#workout">
+          <span className="dash-action-icon">🏋️</span>
+          <span>Treinar Agora</span>
         </a>
         <a className="dash-action-btn" href="#history">
           <span className="dash-action-icon">📋</span>
