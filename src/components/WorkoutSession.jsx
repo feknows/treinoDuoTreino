@@ -82,7 +82,7 @@ function WorkoutSessionInner() {
   async function loadExercises(sessionId) {
     const { data, error } = await supabase
       .from('session_exercises')
-      .select('*')
+      .select('*, exercise:exercise_id(name), equipment:equipment_id(name)')
       .eq('session_id', sessionId)
       .order('order_index')
 
@@ -180,21 +180,34 @@ function WorkoutSessionInner() {
     next[idx] = { ...next[idx], technique_data: techniqueData, completed: true }
     setExercises(next)
 
+    const allDone = next.every(e => e.completed)
+    if (allDone) {
+      await supabase.from('workout_sessions').update({ completed: true }).eq('id', session.id)
+      setSession(p => ({ ...p, completed: true }))
+      return
+    }
+
     const nextIdx = next.findIndex((e, i) => !e.completed && i > idx)
     setActiveIdx(nextIdx >= 0 ? nextIdx : null)
   }
 
-  async function completeWarmup(idx, warmupData) {
+  async function completeWarmup(idx) {
     const exercise = exercises[idx]
     const { error } = await supabase
       .from('session_exercises')
-      .update({ warmup_data: warmupData, completed: true })
+      .update({ warmup_data: {}, completed: true })
       .eq('id', exercise.id)
 
     if (!error) {
       const next = [...exercises]
-      next[idx] = { ...next[idx], warmup_data: warmupData, completed: true }
+      next[idx] = { ...next[idx], warmup_data: {}, completed: true }
       setExercises(next)
+      const allDone = next.every(e => e.completed)
+      if (allDone) {
+        await supabase.from('workout_sessions').update({ completed: true }).eq('id', session.id)
+        setSession(p => ({ ...p, completed: true }))
+        return
+      }
       const nextIdx = next.findIndex((e, i) => !e.completed && i > idx)
       setActiveIdx(nextIdx >= 0 ? nextIdx : null)
     }
@@ -207,7 +220,7 @@ function WorkoutSessionInner() {
     const { data: { user } } = await supabase.auth.getUser()
     const order = exercises.length
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('session_exercises')
       .insert({
         session_id: session.id,
@@ -217,12 +230,10 @@ function WorkoutSessionInner() {
         order_index: order,
         user_id: user.id,
       })
-      .select()
-      .single()
 
-    if (!error && data) {
-      setExercises(p => [...p, data])
-      setActiveIdx(p => p !== null ? p : exercises.length)
+    if (!error) {
+      await loadExercises(session.id)
+      setActiveIdx(order)
     }
   }
 
@@ -242,7 +253,6 @@ function WorkoutSessionInner() {
         <StartSessionPanel
           onStartFromTemplate={startFromTemplate}
           onStartEmpty={startEmpty}
-          onLoadTemplates={loadTemplates}
           templates={templates}
         />
 
@@ -254,6 +264,9 @@ function WorkoutSessionInner() {
   if (session.completed) {
     return (
       <div className="card">
+        <button className="btn-save" style={{ marginBottom: 16 }} onClick={() => { setSession(null); setExercises([]); setActiveIdx(null) }}>
+          🆕 Novo Treino
+        </button>
         <div className="session-complete-header">
           <span className="session-complete-icon">✅</span>
           <h2>Treino Finalizado!</h2>
@@ -267,10 +280,6 @@ function WorkoutSessionInner() {
           onUpdateExercise={null}
           readOnly
         />
-
-        <button className="btn-save" style={{ marginTop: 16 }} onClick={() => { setSession(null); setExercises([]); setActiveIdx(null) }}>
-          Novo Treino
-        </button>
       </div>
     )
   }
@@ -302,12 +311,6 @@ function WorkoutSessionInner() {
             onSelect={setActiveIdx}
           />
 
-          {exercises.length > 0 && exercises.every(e => e.completed) ? (
-            <button className="btn-save" style={{ marginTop: 16 }} onClick={finishSession}>
-              ✅ Finalizar Treino
-            </button>
-          ) : null}
-
           <button className="btn-small-outline" style={{ marginTop: 8 }} onClick={addAvulsoExercise}>
             + Adicionar Exercício
           </button>
@@ -319,7 +322,7 @@ function WorkoutSessionInner() {
   )
 }
 
-function StartSessionPanel({ onStartFromTemplate, onStartEmpty, onLoadTemplates, templates }) {
+function StartSessionPanel({ onStartFromTemplate, onStartEmpty, templates }) {
   const [selected, setSelected] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -353,16 +356,11 @@ function StartSessionPanel({ onStartFromTemplate, onStartEmpty, onLoadTemplates,
 
 function ExerciseForm({ exercise, index, total, onComplete, onCompleteWarmup, onBack }) {
   const [data, setData] = useState(exercise.technique_data || {})
-  const [warmupSets, setWarmupSets] = useState(exercise.warmup_data?.sets ?? '')
-  const [warmupReps, setWarmupReps] = useState(exercise.warmup_data?.reps ?? '')
   const isWarmup = exercise.block_type === 'warmup' && !exercise.technique_type
 
   function handleComplete() {
     if (isWarmup) {
-      const wd = {}
-      if (warmupSets !== '') wd.sets = parseInt(warmupSets)
-      if (warmupReps !== '') wd.reps = parseInt(warmupReps)
-      onCompleteWarmup(index, wd)
+      onCompleteWarmup(index)
     } else {
       onComplete(index, data)
     }
@@ -372,12 +370,12 @@ function ExerciseForm({ exercise, index, total, onComplete, onCompleteWarmup, on
     <div className="ex-form">
       <div className="ex-form-header">
         <span className="ex-form-num">{index + 1}/{total}</span>
-        <h3>{exercise.exercise_name || 'Exercício'}</h3>
+        <h3>{exercise.exercise?.name || 'Exercício'}</h3>
         <button className="btn-back-small" onClick={onBack}>←</button>
       </div>
 
       {exercise.equipment_id && (
-        <p className="ex-form-equip">{exercise.equipment_name || 'Equipamento'}</p>
+        <p className="ex-form-equip">{exercise.equipment?.name || 'Equipamento'}</p>
       )}
 
       {!isWarmup && exercise.technique_type && (
@@ -388,21 +386,9 @@ function ExerciseForm({ exercise, index, total, onComplete, onCompleteWarmup, on
 
       {isWarmup ? (
         <div className="tech-form">
-          <p className="tech-description">Registre o aquecimento realizado:</p>
-          <div className="warmup-fields">
-            <label className="warmup-field">
-              <span>Séries</span>
-              <input type="number" min={0} placeholder="ex: 3" value={warmupSets}
-                onChange={e => setWarmupSets(e.target.value === '' ? '' : parseInt(e.target.value))} />
-            </label>
-            <label className="warmup-field">
-              <span>Repetições</span>
-              <input type="number" min={0} placeholder="ex: 10" value={warmupReps}
-                onChange={e => setWarmupReps(e.target.value === '' ? '' : parseInt(e.target.value))} />
-            </label>
-          </div>
+          <p className="tech-description">Realize o aquecimento e marque como concluído.</p>
           <button className="btn-save" style={{ marginTop: 12 }} onClick={handleComplete}>
-            {exercise.completed ? 'Atualizar' : 'Concluir'}
+            Concluir
           </button>
         </div>
       ) : exercise.technique_type ? (
@@ -411,7 +397,7 @@ function ExerciseForm({ exercise, index, total, onComplete, onCompleteWarmup, on
 
       {!isWarmup && exercise.technique_type && (
         <button className="btn-save" style={{ marginTop: 12 }} onClick={handleComplete}>
-          {exercise.completed ? 'Atualizar' : 'Concluir'}
+          {index === total - 1 ? '✅ Concluir Treino' : 'Próximo →'}
         </button>
       )}
     </div>
@@ -437,12 +423,12 @@ function ExerciseListView({ exercises, activeIdx, onCompleteWarmup, onUpdateExer
             }}
           >
             <div className="ex-list-item-info">
-              <span className="ex-list-item-name">{ex.exercise_name || 'Exercício'}</span>
+              <span className="ex-list-item-name">{ex.exercise?.name || 'Exercício'}</span>
               {ex.technique_type && (
                 <span className="ex-list-item-tech">{getTechniqueLabel(ex.technique_type)}</span>
               )}
               {ex.block_type === 'warmup' && !ex.technique_type && (
-                <span className="ex-list-item-tech">{ex.warmup_data?.sets && ex.warmup_data?.reps ? `${ex.warmup_data.sets}x${ex.warmup_data.reps}` : 'Pendente'}</span>
+                <span className="ex-list-item-tech">🔥 Aquecimento</span>
               )}
             </div>
             <div className="ex-list-item-data">
