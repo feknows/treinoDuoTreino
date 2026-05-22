@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../services/supabaseClient'
 import TemplateForm from './TemplateForm'
 
-function ItemManager({ title, table, items, setItems, color, showTechnique }) {
+function ItemManager({ title, table, items, setItems, color }) {
   const [newName, setNewName] = useState('')
+  const [editId, setEditId] = useState(null)
+  const [editValue, setEditValue] = useState('')
 
   useEffect(() => { fetchItems() }, [])
 
@@ -28,6 +30,27 @@ function ItemManager({ title, table, items, setItems, color, showTechnique }) {
     fetchItems()
   }
 
+  function startEdit(item) {
+    setEditId(item.id)
+    setEditValue(item.name)
+  }
+
+  async function saveEdit(id) {
+    const name = editValue.trim()
+    if (!name || name === items.find(i => i.id === id)?.name) {
+      setEditId(null)
+      return
+    }
+    const { error } = await supabase.from(table).update({ name }).eq('id', id)
+    if (error) { alert(error.message); return }
+    setEditId(null)
+    fetchItems()
+  }
+
+  function cancelEdit() {
+    setEditId(null)
+  }
+
   return (
     <div className="manage-section" style={{ borderLeftColor: color }}>
       <h3>{title}</h3>
@@ -42,8 +65,30 @@ function ItemManager({ title, table, items, setItems, color, showTechnique }) {
         <ul className="item-list">
           {items.map(item => (
             <li key={item.id}>
-              <span>{item.name}</span>
-              <button className="btn-delete" onClick={() => deleteItem(item.id)}>✕</button>
+              {editId === item.id ? (
+                <div className="inline-edit">
+                  <input
+                    type="text"
+                    value={editValue}
+                    onChange={e => setEditValue(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') saveEdit(item.id)
+                      if (e.key === 'Escape') cancelEdit()
+                    }}
+                    autoFocus
+                  />
+                  <button className="btn-save-small" onClick={() => saveEdit(item.id)}>✓</button>
+                  <button className="btn-cancel-small" onClick={cancelEdit}>✕</button>
+                </div>
+              ) : (
+                <>
+                  <span>{item.name}</span>
+                  <div className="item-actions">
+                    <button className="btn-edit" onClick={() => startEdit(item)}>✎</button>
+                    <button className="btn-delete" onClick={() => deleteItem(item.id)}>✕</button>
+                  </div>
+                </>
+              )}
             </li>
           ))}
         </ul>
