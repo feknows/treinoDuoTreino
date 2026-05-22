@@ -13,7 +13,8 @@ function ItemManager({ title, table, items, setItems, color, showTechnique }) {
   async function addItem() {
     const name = newName.trim()
     if (!name) return
-    const { error } = await supabase.from(table).insert({ name })
+    const { data: { user } } = await supabase.auth.getUser()
+    const { error } = await supabase.from(table).insert({ name, user_id: user.id })
     if (error) { alert(error.message); return }
     setNewName('')
     fetchItems()

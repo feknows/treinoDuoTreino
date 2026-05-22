@@ -89,9 +89,11 @@ export default function TemplateForm({ onBack, editTemplate }) {
     setSaving(true)
     setMessage(null)
 
+    const { data: { user } } = await supabase.auth.getUser()
+
     const { data: template, error: tmplErr } = await supabase
       .from('workout_templates')
-      .upsert({ id: editTemplate?.id || undefined, name: name.trim() })
+      .upsert({ id: editTemplate?.id || undefined, name: name.trim(), user_id: user.id })
       .select()
       .single()
 
@@ -114,6 +116,7 @@ export default function TemplateForm({ onBack, editTemplate }) {
         warmup_sets: r.block_type === 'warmup' ? (r.warmup_sets || 2) : null,
         warmup_reps: r.block_type === 'warmup' ? (r.warmup_reps || 10) : null,
         order_index: r.order_index,
+        user_id: user.id,
       }))
 
     if (editTemplate) {

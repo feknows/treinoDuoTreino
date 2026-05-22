@@ -148,19 +148,21 @@ export default function WorkoutSession() {
   }
 
   async function addAvulsoExercise() {
-    const { data: exercises } = await supabase.from('exercises').select('*').order('name')
-    const { data: equipment } = await supabase.from('equipment').select('*').order('name')
-    if (!exercises || !equipment) return
+    const { data: exData } = await supabase.from('exercises').select('*').order('name')
+    if (!exData || exData.length === 0) return
 
+    const { data: { user } } = await supabase.auth.getUser()
     const order = exercises.length
+
     const { data, error } = await supabase
       .from('session_exercises')
       .insert({
         session_id: session.id,
-        exercise_id: exercises[0].id,
+        exercise_id: exData[0].id,
         technique_type: 'valid_set',
         block_type: 'main',
         order_index: order,
+        user_id: user.id,
       })
       .select()
       .single()
