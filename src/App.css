@@ -1285,6 +1285,21 @@ tbody tr:hover {
 
 .tech-round-block .tech-input-wrap { flex: 1; max-width: 120px; }
 
+.tech-default-load {
+  margin-bottom: 8px;
+}
+
+.tech-default-load .tech-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.tech-default-load .tech-field span {
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
 .btn-round-remove {
   width: 28px;
   height: 28px;

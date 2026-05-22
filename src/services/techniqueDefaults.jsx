@@ -96,14 +96,22 @@ function renderValidSet(data, onChange) {
 function renderMuscleRound(data, onChange) {
   const d = data || {}
   const blocks = d.blocks || [{ load: '' }]
+  const defaultLoad = d.defaultLoad || ''
 
   function updateBlock(i, load) {
     const next = blocks.map((b, j) => j === i ? { ...b, load } : b)
     onChange({ ...d, blocks: next })
   }
 
+  function setDefaultLoad(val) {
+    const load = val === '' ? '' : parseFloat(val)
+    const next = blocks.map(b => b.drop ? b : { ...b, load })
+    onChange({ ...d, defaultLoad: val, blocks: next })
+  }
+
   function addBlock(drop) {
-    onChange({ ...d, blocks: [...blocks, { load: '', drop }] })
+    const load = !drop && defaultLoad !== '' ? (typeof defaultLoad === 'string' ? parseFloat(defaultLoad) : defaultLoad) : ''
+    onChange({ ...d, blocks: [...blocks, { load, drop }] })
   }
 
   function removeBlock(i) {
@@ -115,6 +123,19 @@ function renderMuscleRound(data, onChange) {
   return (
     <div className="tech-form">
       <p className="tech-description">Blocos de 4 repetições. Adicione quantos blocos fizer.</p>
+      <div className="tech-default-load">
+        <label className="tech-field">
+          <span>Carga padrão (kg)</span>
+          <div className="tech-input-wrap">
+            <input
+              type="number" step={0.5} min={0} placeholder="kg"
+              value={defaultLoad}
+              onChange={e => setDefaultLoad(e.target.value === '' ? '' : parseFloat(e.target.value))}
+            />
+            <span className="tech-suffix">kg</span>
+          </div>
+        </label>
+      </div>
       {blocks.map((block, i) => (
         <div key={i} className={`tech-round-block ${block.drop ? 'tech-drop' : ''}`}>
           <span className="tech-round-label">
