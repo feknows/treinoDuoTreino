@@ -119,10 +119,19 @@ export default function TemplateForm({ onBack, editTemplate }) {
       await supabase.from('template_exercises').delete().eq('template_id', editTemplate.id)
     }
 
-    const { error: insErr } = await supabase.from('template_exercises').insert(toSave)
+    const { data: inserted, error: insErr } = await supabase
+      .from('template_exercises')
+      .insert(toSave)
+      .select()
+
     setSaving(false)
-    if (insErr) { setMessage({ type: 'error', text: insErr.message }) }
-    else { onBack() }
+    if (insErr) {
+      setMessage({ type: 'error', text: `Erro ao salvar exercícios: ${insErr.message}` })
+    } else if (!inserted || inserted.length === 0) {
+      setMessage({ type: 'error', text: 'Nenhum exercício foi salvo. Verifique se selecionou exercícios e tente novamente.' })
+    } else {
+      onBack()
+    }
   }
 
   return (
