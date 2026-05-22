@@ -132,6 +132,7 @@ function renderMuscleRound(data, onChange) {
   return (
     <div className="tech-form">
       <p className="tech-description">Blocos de 4 repetições. Adicione quantos blocos fizer.</p>
+      <div className="tech-default-loads">
       <div className="tech-default-load">
         <p className="tech-default-load-hint">Preenche automaticamente todos os blocos normais</p>
         <label className="tech-field">
@@ -159,6 +160,7 @@ function renderMuscleRound(data, onChange) {
             <span className="tech-suffix">kg</span>
           </div>
         </label>
+      </div>
       </div>
       {blocks.map((block, i) => (
         <div key={i} className={`tech-round-block ${block.drop ? 'tech-drop' : ''}`}>

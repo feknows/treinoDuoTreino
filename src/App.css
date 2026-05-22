@@ -1295,6 +1295,15 @@ tbody tr:hover {
 
 .tech-round-block .tech-input-wrap { flex: 1; max-width: 120px; }
 
+.tech-default-loads {
+  display: flex;
+  gap: 8px;
+}
+.tech-default-loads .tech-default-load {
+  flex: 1;
+  min-width: 0;
+}
+
 .tech-default-load {
   background: var(--surface);
   border: 1px solid var(--surface2);
