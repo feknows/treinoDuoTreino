@@ -77,7 +77,7 @@ function AppContent() {
       </nav>
 
       <main className="content">
-        {activeTab === 'dashboard' && <Dashboard />}
+        {activeTab === 'dashboard' && <Dashboard onNavigate={setActiveTab} />}
         {activeTab === 'workout' && <WorkoutSession />}
         {activeTab === 'history' && <History />}
         {activeTab === 'progress' && <Progress />}

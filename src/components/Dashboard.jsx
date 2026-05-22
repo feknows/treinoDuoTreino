@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../services/supabaseClient'
 
-export default function Dashboard() {
+export default function Dashboard({ onNavigate }) {
   const [stats, setStats] = useState(null)
   const [name, setName] = useState('')
 
@@ -48,15 +48,15 @@ export default function Dashboard() {
       </div>
 
       <div className="dash-actions">
-        <a className="dash-action-btn" href="#workout">
+        <a className="dash-action-btn" href="#workout" onClick={e => { e.preventDefault(); onNavigate?.('workout') }}>
           <span className="dash-action-icon">🏋️</span>
           <span>Treinar Agora</span>
         </a>
-        <a className="dash-action-btn" href="#history">
+        <a className="dash-action-btn" href="#history" onClick={e => { e.preventDefault(); onNavigate?.('history') }}>
           <span className="dash-action-icon">📋</span>
           <span>Ver Histórico</span>
         </a>
-        <a className="dash-action-btn" href="#progress">
+        <a className="dash-action-btn" href="#progress" onClick={e => { e.preventDefault(); onNavigate?.('progress') }}>
           <span className="dash-action-icon">📈</span>
           <span>Meu Progresso</span>
         </a>
