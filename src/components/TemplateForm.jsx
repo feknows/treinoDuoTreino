@@ -138,61 +138,49 @@ export default function TemplateForm({ onBack, editTemplate }) {
       </label>
 
       <div className="tmpl-block">
-        <div className="tmpl-block-header">
-          <h3>🔥 Aquecimento</h3>
-          <button className="btn-small" onClick={addWarmup}>+</button>
-        </div>
+        <h3 className="tmpl-block-title">🔥 Aquecimento</h3>
         {warmupExercises.map((row, i) => (
           <div key={row._key} className="tmpl-row">
-            <div className="tmpl-row-header">
-              <span className="tmpl-idx">{i + 1}</span>
-              {warmupExercises.length > 1 && (
-                <button className="btn-remove-row" onClick={() => removeWarmup(row._key)}>✕</button>
-              )}
-            </div>
-            <div className="tmpl-row-fields tmpl-main-fields">
-              <select value={row.exercise_id} onChange={e => updateWarmup(row._key, 'exercise_id', e.target.value)}>
-                <option value="">Exercício</option>
-                {exercises.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
-              </select>
-              <select value={row.equipment_id} onChange={e => updateWarmup(row._key, 'equipment_id', e.target.value)}>
-                <option value="">Equipamento</option>
-                {equipment.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
-              </select>
-            </div>
+            <span className="tmpl-idx">{i + 1}</span>
+            <select value={row.exercise_id} onChange={e => updateWarmup(row._key, 'exercise_id', e.target.value)}>
+              <option value="">Exercício</option>
+              {exercises.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
+            </select>
+            <select value={row.equipment_id} onChange={e => updateWarmup(row._key, 'equipment_id', e.target.value)}>
+              <option value="">Equipamento</option>
+              {equipment.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
+            </select>
+            {warmupExercises.length > 1 && (
+              <button className="btn-remove-row" onClick={() => removeWarmup(row._key)}>✕</button>
+            )}
           </div>
         ))}
+        <button className="btn-add-row" onClick={addWarmup}>+ Adicionar Exercício</button>
       </div>
 
       <div className="tmpl-block">
-        <div className="tmpl-block-header">
-          <h3>💪 Parte Principal</h3>
-          <button className="btn-small" onClick={addMain}>+</button>
-        </div>
+        <h3 className="tmpl-block-title">💪 Parte Principal</h3>
         {mainExercises.map((row, i) => (
           <div key={row._key} className="tmpl-row">
-            <div className="tmpl-row-header">
-              <span className="tmpl-idx">{i + 1}</span>
-              {mainExercises.length > 1 && (
-                <button className="btn-remove-row" onClick={() => removeMain(row._key)}>✕</button>
-              )}
-            </div>
-            <div className="tmpl-row-fields tmpl-main-fields">
-              <select value={row.exercise_id} onChange={e => updateMain(row._key, 'exercise_id', e.target.value)}>
-                <option value="">Exercício</option>
-                {exercises.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
-              </select>
-              <select value={row.equipment_id} onChange={e => updateMain(row._key, 'equipment_id', e.target.value)}>
-                <option value="">Equipamento</option>
-                {equipment.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
-              </select>
-              <select value={row.technique_type} onChange={e => updateMain(row._key, 'technique_type', e.target.value)}>
-                <option value="">Técnica</option>
-                {TECHNIQUE_TYPES.map(t => <option key={t.name} value={t.name}>{t.label}</option>)}
-              </select>
-            </div>
+            <span className="tmpl-idx">{i + 1}</span>
+            <select value={row.exercise_id} onChange={e => updateMain(row._key, 'exercise_id', e.target.value)}>
+              <option value="">Exercício</option>
+              {exercises.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
+            </select>
+            <select value={row.equipment_id} onChange={e => updateMain(row._key, 'equipment_id', e.target.value)}>
+              <option value="">Equipamento</option>
+              {equipment.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
+            </select>
+            <select value={row.technique_type} onChange={e => updateMain(row._key, 'technique_type', e.target.value)}>
+              <option value="">Técnica</option>
+              {TECHNIQUE_TYPES.map(t => <option key={t.name} value={t.name}>{t.label}</option>)}
+            </select>
+            {mainExercises.length > 1 && (
+              <button className="btn-remove-row" onClick={() => removeMain(row._key)}>✕</button>
+            )}
           </div>
         ))}
+        <button className="btn-add-row" onClick={addMain}>+ Adicionar Exercício</button>
       </div>
 
       <button className="btn-save" disabled={saving || !isValid()} onClick={handleSave}>
