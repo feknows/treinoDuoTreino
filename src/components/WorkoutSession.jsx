@@ -41,23 +41,24 @@ function WorkoutSessionInner() {
   const [exercises, setExercises] = useState([])
   const [activeIdx, setActiveIdx] = useState(null)
   const [templates, setTemplates] = useState([])
+  const [pendingResumeId, setPendingResumeId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState(null)
 
   const today = new Date().toISOString().split('T')[0]
 
   useEffect(() => {
-    loadToday()
+    checkTodaySession()
     loadTemplates()
   }, [])
 
-  async function loadToday() {
-    setLoading(true)
+  async function checkTodaySession() {
     try {
       const { data: sessions, error } = await supabase
         .from('workout_sessions')
         .select('*')
         .eq('date', today)
+        .eq('completed', false)
         .limit(1)
 
       if (error) {
@@ -66,12 +67,8 @@ function WorkoutSessionInner() {
         return
       }
 
-      if (sessions && sessions.length > 0 && !sessions[0].completed) {
-        setSession(sessions[0])
-        await loadExercises(sessions[0].id)
-      } else if (sessions && sessions.length > 0 && sessions[0].completed) {
-        setSession(sessions[0])
-        await loadExercises(sessions[0].id)
+      if (sessions && sessions.length > 0) {
+        setPendingResumeId(sessions[0].id)
       }
     } catch (err) {
       setMessage({ type: 'error', text: `Erro inesperado: ${err.message}` })
@@ -100,6 +97,21 @@ function WorkoutSessionInner() {
         setActiveIdx(firstIncomplete >= 0 ? firstIncomplete : 0)
       }
     }
+  }
+
+  async function resumeSession() {
+    setLoading(true)
+    const { data: sessionData } = await supabase
+      .from('workout_sessions')
+      .select('*')
+      .eq('id', pendingResumeId)
+      .single()
+
+    if (sessionData) {
+      setSession(sessionData)
+      await loadExercises(sessionData.id)
+    }
+    setLoading(false)
   }
 
   async function loadTemplates() {
@@ -253,6 +265,8 @@ function WorkoutSessionInner() {
         <StartSessionPanel
           onStartFromTemplate={startFromTemplate}
           onStartEmpty={startEmpty}
+          onResume={resumeSession}
+          pendingResumeId={pendingResumeId}
           templates={templates}
         />
 
@@ -322,7 +336,7 @@ function WorkoutSessionInner() {
   )
 }
 
-function StartSessionPanel({ onStartFromTemplate, onStartEmpty, templates }) {
+function StartSessionPanel({ onStartFromTemplate, onStartEmpty, onResume, pendingResumeId, templates }) {
   const [selected, setSelected] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -334,6 +348,14 @@ function StartSessionPanel({ onStartFromTemplate, onStartEmpty, templates }) {
 
   return (
     <div className="start-session">
+      {pendingResumeId && (
+        <>
+          <button className="btn-resume" onClick={onResume}>
+            ▶ Continuar Treino Atual
+          </button>
+          <div className="start-divider">ou inicie um novo</div>
+        </>
+      )}
       <div className="start-field">
         <label className="field-label">Escolher Modelo</label>
         <select value={selected} onChange={e => setSelected(e.target.value)}>
