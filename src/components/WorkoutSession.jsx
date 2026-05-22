@@ -362,7 +362,7 @@ function StartSessionPanel({ onStartFromTemplate, onStartEmpty, onResume, pendin
           <option value="">Selecione um modelo...</option>
           {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
-        <button style={{ marginTop: 8 }} disabled={!selected || loading} onClick={handleStart}>
+        <button className="btn-start" disabled={!selected || loading} onClick={handleStart}>
           {loading ? 'Iniciando...' : 'Iniciar Treino'}
         </button>
       </div>

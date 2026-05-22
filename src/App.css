@@ -474,7 +474,19 @@ tbody tr:hover {
 }
 
 .btn-save-small:hover {
-  background: rgba(0, 230, 118, 0.15);
+  background: rgba(0, 230, 118, 0.2);
+}
+
+.btn-logout {
+  width: 100%;
+  margin-top: 20px;
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.btn-logout:hover {
+  background: rgba(255, 82, 82, 0.1);
 }
 
 .btn-cancel-small {
@@ -1072,8 +1084,8 @@ tbody tr:hover {
 .btn-resume {
   width: 100%;
   padding: 14px 16px;
-  background: var(--primary);
-  color: #000;
+  background: var(--secondary);
+  color: #fff;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -1084,6 +1096,11 @@ tbody tr:hover {
 
 .btn-resume:hover {
   opacity: 0.85;
+}
+
+.btn-start {
+  width: 100%;
+  margin-top: 8px;
 }
 
 .btn-small-outline {

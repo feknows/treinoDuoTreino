@@ -1,8 +1,15 @@
 import { useState } from 'react'
 import { supabase } from '../services/supabaseClient'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Profile({ user, onBack }) {
   const [tab, setTab] = useState('info')
+  const { signOut } = useAuth()
+
+  async function handleLogout() {
+    await signOut()
+    onBack()
+  }
 
   return (
     <div className="card">
@@ -26,6 +33,7 @@ export default function Profile({ user, onBack }) {
       {tab === 'info' && <ProfileInfo user={user} />}
       {tab === 'password' && <ChangePassword />}
       {tab === 'email' && <ChangeEmail user={user} />}
+      <button className="btn-logout" onClick={handleLogout}>Sair da Conta</button>
     </div>
   )
 }
