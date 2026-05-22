@@ -1403,6 +1403,99 @@ tbody tr:hover {
 .session-complete-header h2 { margin: 0; }
 
 /* ── Histórico ── */
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.history-header h2 {
+  margin-bottom: 0;
+}
+
+.history-sort {
+  padding: 6px 10px;
+  border: 1px solid var(--surface2);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.8rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.session-card {
+  background: var(--bg);
+  border: 1px solid var(--surface2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.session-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  cursor: pointer;
+  gap: 12px;
+  transition: background 0.2s;
+}
+
+.session-card-header:hover {
+  background: var(--surface2);
+}
+
+.session-card-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.session-date {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.session-complete-tag {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.session-count {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.session-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.expand-icon {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  padding: 4px;
+}
+
+.session-card-body {
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--surface2);
+}
+
 .hist-group { margin-bottom: 12px; }
 .hist-group:last-child { margin-bottom: 0; }
 
@@ -1416,8 +1509,8 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
-  background: var(--bg);
+  padding: 10px 12px;
+  background: var(--surface);
   border-radius: 8px;
   margin-bottom: 4px;
 }

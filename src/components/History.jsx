@@ -9,6 +9,7 @@ export default function History() {
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const [sortOrder, setSortOrder] = useState('desc')
 
   useEffect(() => {
     fetchCatalogs()
@@ -16,7 +17,7 @@ export default function History() {
 
   useEffect(() => {
     if (exercises.length || equipment.length) fetchSessions()
-  }, [exercises, equipment])
+  }, [exercises, equipment, sortOrder])
 
   async function fetchCatalogs() {
     const [exRes, eqRes] = await Promise.all([
@@ -37,8 +38,8 @@ export default function History() {
     const { data: sessionsData } = await supabase
       .from('workout_sessions')
       .select('*')
-      .order('date', { ascending: false })
-      .order('created_at', { ascending: false })
+      .order('date', { ascending: sortOrder === 'asc' })
+      .order('created_at', { ascending: sortOrder === 'asc' })
 
     if (!sessionsData) { setLoading(false); return }
 
@@ -81,7 +82,13 @@ export default function History() {
 
   return (
     <div className="card">
-      <h2>Histórico</h2>
+      <div className="history-header">
+        <h2>Histórico</h2>
+        <select className="history-sort" value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
+          <option value="desc">Mais recente</option>
+          <option value="asc">Mais antigo</option>
+        </select>
+      </div>
 
       {loading ? (
         <p className="loading">Carregando...</p>
