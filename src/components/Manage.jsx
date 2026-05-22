@@ -6,6 +6,7 @@ function ItemManager({ title, table, items, setItems, color }) {
   const [newName, setNewName] = useState('')
   const [editId, setEditId] = useState(null)
   const [editValue, setEditValue] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
   useEffect(() => { fetchItems() }, [])
 
@@ -25,7 +26,7 @@ function ItemManager({ title, table, items, setItems, color }) {
   }
 
   async function deleteItem(id) {
-    if (!window.confirm(`Excluir este ${title.toLowerCase()}?`)) return
+    setConfirmDeleteId(null)
     await supabase.from(table).delete().eq('id', id)
     fetchItems()
   }
@@ -84,8 +85,18 @@ function ItemManager({ title, table, items, setItems, color }) {
                 <>
                   <span>{item.name}</span>
                   <div className="item-actions">
-                    <button className="btn-edit" onClick={() => startEdit(item)}>✎</button>
-                    <button className="btn-delete" onClick={() => deleteItem(item.id)}>✕</button>
+                    {confirmDeleteId === item.id ? (
+                      <span className="confirm-delete">
+                        <span className="confirm-delete-text">Excluir?</span>
+                        <button className="btn-confirm-yes" onClick={() => deleteItem(item.id)}>✓</button>
+                        <button className="btn-confirm-no" onClick={() => setConfirmDeleteId(null)}>✕</button>
+                      </span>
+                    ) : (
+                      <>
+                        <button className="btn-edit" onClick={() => startEdit(item)}>✎</button>
+                        <button className="btn-delete" onClick={() => setConfirmDeleteId(item.id)}>✕</button>
+                      </>
+                    )}
                   </div>
                 </>
               )}
@@ -99,6 +110,7 @@ function ItemManager({ title, table, items, setItems, color }) {
 
 function TemplateManager({ templates, onEdit, onRefresh }) {
   const [shares, setShares] = useState({})
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
   useEffect(() => { fetchShares() }, [templates])
 
@@ -117,7 +129,7 @@ function TemplateManager({ templates, onEdit, onRefresh }) {
   }
 
   async function deleteTemplate(id) {
-    if (!window.confirm('Excluir este modelo?')) return
+    setConfirmDeleteId(null)
     await supabase.from('workout_templates').delete().eq('id', id)
     onRefresh()
   }
@@ -134,8 +146,18 @@ function TemplateManager({ templates, onEdit, onRefresh }) {
               <span>{t.name}</span>
               <div className="item-actions">
                 {shares[t.id]?.length > 0 && <span className="shared-badge">{shares[t.id].length} 👥</span>}
-                <button className="btn-edit" onClick={() => onEdit(t)}>✎</button>
-                <button className="btn-delete" onClick={() => deleteTemplate(t.id)}>✕</button>
+                {confirmDeleteId === t.id ? (
+                  <span className="confirm-delete">
+                    <span className="confirm-delete-text">Excluir?</span>
+                    <button className="btn-confirm-yes" onClick={() => deleteTemplate(t.id)}>✓</button>
+                    <button className="btn-confirm-no" onClick={() => setConfirmDeleteId(null)}>✕</button>
+                  </span>
+                ) : (
+                  <>
+                    <button className="btn-edit" onClick={() => onEdit(t)}>✎</button>
+                    <button className="btn-delete" onClick={() => setConfirmDeleteId(t.id)}>✕</button>
+                  </>
+                )}
               </div>
             </li>
           ))}

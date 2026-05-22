@@ -414,6 +414,51 @@ tbody tr:hover {
   background: rgba(0, 230, 118, 0.1);
 }
 
+.confirm-delete {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--danger);
+  white-space: nowrap;
+}
+
+.confirm-delete-text {
+  margin-right: 2px;
+}
+
+.btn-confirm-yes, .btn-confirm-no {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-confirm-yes {
+  background: rgba(0, 230, 118, 0.15);
+  color: var(--primary);
+}
+
+.btn-confirm-yes:hover {
+  background: rgba(0, 230, 118, 0.3);
+}
+
+.btn-confirm-no {
+  background: rgba(255, 82, 82, 0.15);
+  color: var(--danger);
+}
+
+.btn-confirm-no:hover {
+  background: rgba(255, 82, 82, 0.3);
+}
+
 .btn-save-small, .btn-cancel-small {
   background: transparent;
   border: none;

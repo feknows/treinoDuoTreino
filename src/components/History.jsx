@@ -8,6 +8,7 @@ export default function History() {
   const [equipment, setEquipment] = useState([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
   useEffect(() => {
     fetchCatalogs()
@@ -66,7 +67,7 @@ export default function History() {
   }
 
   async function handleDeleteSession(sessionId) {
-    if (!window.confirm('Excluir esta sessão de treino?')) return
+    setConfirmDeleteId(null)
     await supabase.from('workout_sessions').delete().eq('id', sessionId)
     fetchSessions()
   }
@@ -105,7 +106,15 @@ export default function History() {
                     {session.exercises.length > 0 && (
                       <span className="expand-icon">{isExpanded ? '▲' : '▼'}</span>
                     )}
-                    <button className="btn-delete" onClick={() => handleDeleteSession(session.id)}>✕</button>
+                    {confirmDeleteId === session.id ? (
+                      <span className="confirm-delete">
+                        <span className="confirm-delete-text">Excluir?</span>
+                        <button className="btn-confirm-yes" onClick={() => handleDeleteSession(session.id)}>✓</button>
+                        <button className="btn-confirm-no" onClick={() => setConfirmDeleteId(null)}>✕</button>
+                      </span>
+                    ) : (
+                      <button className="btn-delete" onClick={() => setConfirmDeleteId(session.id)}>✕</button>
+                    )}
                   </div>
                 </div>
 
