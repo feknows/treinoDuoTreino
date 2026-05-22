@@ -130,32 +130,35 @@ CREATE POLICY "read_technique_types" ON technique_types
 CREATE POLICY "own_templates" ON workout_templates
   FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
+-- Helper functions to avoid RLS recursion
+CREATE OR REPLACE FUNCTION is_template_owner(tid UUID)
+RETURNS BOOLEAN
+SECURITY DEFINER STABLE LANGUAGE sql
+AS $$
+  SELECT EXISTS (SELECT 1 FROM workout_templates WHERE id = tid AND user_id = auth.uid());
+$$;
+
+CREATE OR REPLACE FUNCTION get_shared_template_ids(p_email TEXT)
+RETURNS SETOF UUID
+SECURITY DEFINER STABLE LANGUAGE sql
+AS $$
+  SELECT template_id FROM template_shares WHERE shared_with_email = p_email;
+$$;
+
 CREATE POLICY "shared_templates_select" ON workout_templates
   FOR SELECT USING (
     auth.uid() = user_id OR
-    id IN (
-      SELECT template_id FROM template_shares
-      WHERE shared_with_email = auth.email()
-    )
+    id IN (SELECT get_shared_template_ids(auth.email()))
   );
 
 CREATE POLICY "template_shares_owner" ON template_shares
-  FOR ALL USING (
-    auth.uid() IN (
-      SELECT user_id FROM workout_templates WHERE id = template_id
-    )
-  ) WITH CHECK (
-    auth.uid() IN (
-      SELECT user_id FROM workout_templates WHERE id = template_id
-    )
-  );
+  FOR ALL USING (is_template_owner(template_id))
+  WITH CHECK (is_template_owner(template_id));
 
 CREATE POLICY "template_shares_read" ON template_shares
   FOR SELECT USING (
     shared_with_email = auth.email() OR
-    auth.uid() IN (
-      SELECT user_id FROM workout_templates WHERE id = template_id
-    )
+    is_template_owner(template_id)
   );
 
 CREATE POLICY "own_template_exercises" ON template_exercises
@@ -164,11 +167,7 @@ CREATE POLICY "own_template_exercises" ON template_exercises
 CREATE POLICY "shared_template_exercises_select" ON template_exercises
   FOR SELECT USING (
     auth.uid() = user_id OR
-    EXISTS (
-      SELECT 1 FROM template_shares
-      WHERE template_id = template_exercises.template_id
-      AND shared_with_email = auth.email()
-    )
+    template_id IN (SELECT get_shared_template_ids(auth.email()))
   );
 
 CREATE POLICY "own_sessions" ON workout_sessions
