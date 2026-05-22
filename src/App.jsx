@@ -3,6 +3,7 @@ import { supabase } from './services/supabaseClient'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthPage from './components/AuthPage'
 import Profile, { getInitial } from './components/Profile'
+import Dashboard from './components/Dashboard'
 import RegisterWorkout from './components/RegisterWorkout'
 import History from './components/History'
 import Progress from './components/Progress'
@@ -10,6 +11,7 @@ import Manage from './components/Manage'
 import HowToUse from './components/HowToUse'
 
 const tabs = [
+  { id: 'dashboard', label: 'Início', icon: '🏠' },
   { id: 'register', label: 'Registrar', icon: '➕' },
   { id: 'history', label: 'Histórico', icon: '📋' },
   { id: 'progress', label: 'Progresso', icon: '📈' },
@@ -19,7 +21,7 @@ const tabs = [
 
 function AppContent() {
   const { user, loading } = useAuth()
-  const [activeTab, setActiveTab] = useState('register')
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [showProfile, setShowProfile] = useState(false)
 
   if (loading) {
@@ -75,6 +77,7 @@ function AppContent() {
       </nav>
 
       <main className="content">
+        {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'register' && <RegisterWorkout />}
         {activeTab === 'history' && <History />}
         {activeTab === 'progress' && <Progress />}
