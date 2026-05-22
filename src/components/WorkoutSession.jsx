@@ -1,8 +1,42 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Component } from 'react'
 import { supabase } from '../services/supabaseClient'
-import { TECHNIQUE_TYPES, renderTechniqueForm, renderTechniqueSummary, getTechniqueLabel } from '../services/techniqueDefaults'
+import { renderTechniqueForm, renderTechniqueSummary, getTechniqueLabel } from '../services/techniqueDefaults'
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="card" style={{ borderLeft: '3px solid var(--danger)', padding: '16px' }}>
+          <h3 style={{ color: 'var(--danger)' }}>Erro ao carregar treino</h3>
+          <p style={{ color: 'var(--text-dim)', fontSize: '0.85rem', marginTop: 8, whiteSpace: 'pre-wrap' }}>
+            {this.state.error.message || String(this.state.error)}
+          </p>
+          <p style={{ color: 'var(--text-dim)', fontSize: '0.8rem', marginTop: 8 }}>
+            Verifique o console do navegador (F12) para mais detalhes.
+          </p>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 export default function WorkoutSession() {
+  return (
+    <ErrorBoundary>
+      <WorkoutSessionInner />
+    </ErrorBoundary>
+  )
+}
+
+function WorkoutSessionInner() {
   const [session, setSession] = useState(null)
   const [exercises, setExercises] = useState([])
   const [activeIdx, setActiveIdx] = useState(null)
@@ -18,28 +52,43 @@ export default function WorkoutSession() {
 
   async function loadToday() {
     setLoading(true)
-    const { data: sessions } = await supabase
-      .from('workout_sessions')
-      .select('*')
-      .eq('date', today)
-      .limit(1)
+    try {
+      const { data: sessions, error } = await supabase
+        .from('workout_sessions')
+        .select('*')
+        .eq('date', today)
+        .limit(1)
 
-    if (sessions && sessions.length > 0 && !sessions[0].completed) {
-      setSession(sessions[0])
-      await loadExercises(sessions[0].id)
-    } else if (sessions && sessions.length > 0 && sessions[0].completed) {
-      setSession(sessions[0])
-      await loadExercises(sessions[0].id)
+      if (error) {
+        setMessage({ type: 'error', text: `Erro ao carregar: ${error.message}` })
+        setLoading(false)
+        return
+      }
+
+      if (sessions && sessions.length > 0 && !sessions[0].completed) {
+        setSession(sessions[0])
+        await loadExercises(sessions[0].id)
+      } else if (sessions && sessions.length > 0 && sessions[0].completed) {
+        setSession(sessions[0])
+        await loadExercises(sessions[0].id)
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: `Erro inesperado: ${err.message}` })
     }
     setLoading(false)
   }
 
   async function loadExercises(sessionId) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('session_exercises')
       .select('*')
       .eq('session_id', sessionId)
       .order('order_index')
+
+    if (error) {
+      setMessage({ type: 'error', text: `Erro ao carregar exercícios: ${error.message}` })
+      return
+    }
 
     if (data) {
       setExercises(data)
@@ -49,17 +98,16 @@ export default function WorkoutSession() {
   }
 
   async function loadTemplates() {
-    const { data: myTemplates } = await supabase
+    const { data, error } = await supabase
       .from('workout_templates')
       .select('*')
       .order('name')
 
-    const { data: sharedTemplates } = await supabase
-      .from('workout_templates')
-      .select('*')
-      .order('name')
-
-    setTemplates(sharedTemplates || myTemplates || [])
+    if (error) {
+      setMessage({ type: 'error', text: `Erro ao carregar modelos: ${error.message}` })
+      return
+    }
+    setTemplates(data || [])
   }
 
   async function startFromTemplate(templateId) {
