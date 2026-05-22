@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase } from './services/supabaseClient'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthPage from './components/AuthPage'
+import Profile from './components/Profile'
 import RegisterWorkout from './components/RegisterWorkout'
 import History from './components/History'
 import Progress from './components/Progress'
@@ -19,7 +20,7 @@ const tabs = [
 function AppContent() {
   const { user, loading } = useAuth()
   const [activeTab, setActiveTab] = useState('register')
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
 
   if (loading) {
     return (
@@ -35,6 +36,14 @@ function AppContent() {
     return <AuthPage />
   }
 
+  if (showProfile) {
+    return (
+      <div className="app">
+        <Profile user={user} onBack={() => setShowProfile(false)} />
+      </div>
+    )
+  }
+
   return (
     <div className="app">
       <header className="header">
@@ -44,17 +53,9 @@ function AppContent() {
             TreinoDuoTreino
           </h1>
           <div className="user-menu">
-            <button className="user-btn" onClick={() => setMenuOpen(!menuOpen)}>
+            <button className="user-btn" onClick={() => setShowProfile(true)}>
               {user.email?.[0]?.toUpperCase() || 'U'}
             </button>
-            {menuOpen && (
-              <div className="user-dropdown">
-                <span className="user-email">{user.email}</span>
-                <button onClick={() => { supabase.auth.signOut(); setMenuOpen(false) }}>
-                  Sair
-                </button>
-              </div>
-            )}
           </div>
         </div>
         <p className="subtitle">Controle sua evolução na academia</p>
