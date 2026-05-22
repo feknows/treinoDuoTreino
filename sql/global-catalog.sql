@@ -8,7 +8,9 @@ ALTER TABLE equipment DROP CONSTRAINT IF EXISTS equipment_name_user_id_key;
 ALTER TABLE equipment DROP CONSTRAINT IF EXISTS equipment_name_key;
 
 -- 2. Adicionar UNIQUE só no nome (global)
+ALTER TABLE exercises DROP CONSTRAINT IF EXISTS exercises_name_unique;
 ALTER TABLE exercises ADD CONSTRAINT exercises_name_unique UNIQUE(name);
+ALTER TABLE equipment DROP CONSTRAINT IF EXISTS equipment_name_unique;
 ALTER TABLE equipment ADD CONSTRAINT equipment_name_unique UNIQUE(name);
 
 -- 3. Remover políticas antigas de exercises/equipment
@@ -18,7 +20,16 @@ DROP POLICY IF EXISTS "own_exercise_categories" ON exercise_categories;
 DROP POLICY IF EXISTS "own_exercises" ON exercises;
 DROP POLICY IF EXISTS "own_equipment" ON equipment;
 
--- 4. Novas políticas globais
+-- 4. Novas políticas globais (DROP primeiro para ser idempotente)
+DROP POLICY IF EXISTS "exercises_select" ON exercises;
+DROP POLICY IF EXISTS "exercises_insert" ON exercises;
+DROP POLICY IF EXISTS "exercises_update" ON exercises;
+DROP POLICY IF EXISTS "exercises_delete" ON exercises;
+DROP POLICY IF EXISTS "equipment_select" ON equipment;
+DROP POLICY IF EXISTS "equipment_insert" ON equipment;
+DROP POLICY IF EXISTS "equipment_update" ON equipment;
+DROP POLICY IF EXISTS "equipment_delete" ON equipment;
+
 CREATE POLICY "exercises_select" ON exercises
   FOR SELECT TO authenticated USING (true);
 

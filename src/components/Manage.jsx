@@ -5,6 +5,8 @@ import TemplateForm from './TemplateForm'
 function ItemManager({ title, table, items, setItems, color, showTechnique }) {
   const [newName, setNewName] = useState('')
 
+  useEffect(() => { fetchItems() }, [])
+
   async function fetchItems() {
     const { data } = await supabase.from(table).select('*').order('name')
     if (data) setItems(data)
