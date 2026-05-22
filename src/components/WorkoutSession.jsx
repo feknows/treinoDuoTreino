@@ -92,8 +92,12 @@ function WorkoutSessionInner() {
 
     if (data) {
       setExercises(data)
-      const firstIncomplete = data.findIndex(e => !e.completed)
-      setActiveIdx(firstIncomplete >= 0 ? firstIncomplete : 0)
+      if (data.length === 0) {
+        setActiveIdx(null)
+      } else {
+        const firstIncomplete = data.findIndex(e => !e.completed)
+        setActiveIdx(firstIncomplete >= 0 ? firstIncomplete : 0)
+      }
     }
   }
 
