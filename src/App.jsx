@@ -3,12 +3,14 @@ import RegisterWorkout from './components/RegisterWorkout'
 import History from './components/History'
 import Progress from './components/Progress'
 import Manage from './components/Manage'
+import HowToUse from './components/HowToUse'
 
 const tabs = [
   { id: 'register', label: 'Registrar', icon: '➕' },
   { id: 'history', label: 'Histórico', icon: '📋' },
   { id: 'progress', label: 'Progresso', icon: '📈' },
   { id: 'manage', label: 'Gerenciar', icon: '⚙️' },
+  { id: 'howtouse', label: 'Ajuda', icon: '❓' },
 ]
 
 export default function App() {
@@ -42,6 +44,7 @@ export default function App() {
         {activeTab === 'history' && <History />}
         {activeTab === 'progress' && <Progress />}
         {activeTab === 'manage' && <Manage />}
+        {activeTab === 'howtouse' && <HowToUse />}
       </main>
     </div>
   )
