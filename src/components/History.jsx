@@ -32,6 +32,14 @@ export default function History() {
     return list.find(i => i.id === id)?.name || id?.substring(0, 8) || '-'
   }
 
+  function formatDate(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00')
+    const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+    const day = String(d.getDate()).padStart(2, '0')
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    return `${days[d.getDay()]}, ${day}-${month}-${d.getFullYear()}`
+  }
+
   async function fetchSessions() {
     setLoading(true)
 
@@ -105,7 +113,7 @@ export default function History() {
               <div key={session.id} className={`session-card ${isExpanded ? 'expanded' : ''}`}>
                 <div className="session-card-header" onClick={() => session.exercises.length > 0 && toggleExpand(session.id)}>
                   <div className="session-card-info">
-                    <span className="session-date">{session.date}</span>
+                    <span className="session-date">{formatDate(session.date)}</span>
                     {session.completed && <span className="session-complete-tag">✅</span>}
                     <span className="session-count">{session.exercises.length} exercício(s)</span>
                   </div>
